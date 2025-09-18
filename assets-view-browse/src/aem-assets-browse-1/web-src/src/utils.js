@@ -54,4 +54,41 @@ async function actionWebInvoke (actionUrl, headers = {}, params = {}, options = 
   return content
 }
 
+/**
+ * Fetches asset metadata from AEM Assets Author API
+ * 
+ * @param {object} guestConnection - The UIX guest connection object
+ * @param {string} aemHost - The AEM host URL
+ * @param {string} assetId - The asset ID to fetch metadata for
+ * @returns {Promise<object>} The asset metadata
+ */
+async function getAssetMetadata(guestConnection, aemHost, assetId) {
+  // Import config to get the action URL
+  const config = await import('./config.json')
+  const actionUrl = config['aem-assets-browse-1/fetchMetadata']
+  
+  // Get authentication info from guest connection
+  const { accessToken } = await guestConnection.host.auth.getIMSInfo()
+  
+  // Set up headers with Bearer token
+  const headers = {
+    'Authorization': `Bearer ${accessToken}`
+  }
+  
+  // Set up parameters
+  const params = {
+    assetId,
+    AEMhost: aemHost,
+  }
+  
+  // Set up options for GET request
+  const options = {
+    method: 'GET'
+  }
+  
+  // Call the fetchMetadata action
+  return await actionWebInvoke(actionUrl, headers, params, options)
+}
+
+export { getAssetMetadata }
 export default actionWebInvoke

@@ -31,7 +31,7 @@ async function main (params) {
     logger.debug(stringParameters(params))
 
     // check for missing request input parameters and headers
-    const requiredParams = [/* add required params */]
+    const requiredParams = ['assetId', 'AEMhost']
     const requiredHeaders = ['Authorization']
     const errorMessage = checkMissingRequestInputs(params, requiredParams, requiredHeaders)
     if (errorMessage) {
@@ -42,13 +42,29 @@ async function main (params) {
     // extract the user Bearer token from the Authorization header
     const token = getBearerToken(params)
 
-    // replace this with the api you want to access
-    const apiEndpoint = `${params.API_ENDPOINT}`
-    // fetch content from external api endpoint
-    const res = await fetch(apiEndpoint)
+    // build the AEM Assets Author API endpoint for metadata
+    const apiEndpoint = `${params.AEMhost}adobe/assets/${params.assetId}/metadata`
+
+    // const apiEndpoint = `${params.AEMhost}${params.assetPath}/jcr:content/metadata.-1.json`
+    
+    logger.info(`Fetching metadata for asset: ${params.assetId} from ${apiEndpoint}`)
+    
+    // fetch asset metadata from AEM Assets Author API
+    const res = await fetch(apiEndpoint, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+        'X-Api-Key': 'aem-assets-frontend-1_assetsui'
+      }
+    })
+    
     if (!res.ok) {
-      throw new Error('request to ' + apiEndpoint + ' failed with status code ' + res.status)
+      const errorText = await res.text()
+      logger.error(`API request failed with status ${res.status}: ${errorText}`)
+      throw new Error(`Request to ${apiEndpoint} failed with status code ${res.status}: ${errorText}`)
     }
+    
     const content = await res.json()
     const response = {
       statusCode: 200,

@@ -23,11 +23,11 @@ function ExtensionRegistration() {
                 'onClick': async () => {
                   // openDialog: ({ title, contentUrl, type, size, payload }) => {},
                   guestConnection.host.modal.openDialog({
-                    title: 'Asset Data',
+                    title: 'Asset Metadata',
                     contentUrl: '/#modal-open-metadata',
                     type: 'modal',
-                    size: 'M',
-                    payload: { /* arbitrary payload */ }
+                    size: 'L',
+                    payload: { resources: resourceSelection.resources }
                   });
                 },
               },
